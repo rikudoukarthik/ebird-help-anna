@@ -66,6 +66,7 @@ SAdata1 <- SAdata0 %>%
   
 ## comparing two years
 
+# NOTE: merging all "Kidangu Road" locations into one 
 SAdata2 <- SAdata0 %>% 
   mutate(LOCALITY = case_when(grepl("Kidangu", LOCALITY) ~ "Kidangu Road",
                               TRUE ~ LOCALITY)) %>% 
