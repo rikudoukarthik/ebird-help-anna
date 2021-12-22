@@ -129,11 +129,38 @@ SAdata3 <- SAdata0 %>%
   summarise(TOT.COUNT = sum(OBSERVATION.COUNT)) %>% ungroup() 
 
 
-# freq of reporting per each location not possible because not many lists per location
-# changes between two years seen here affected by change in effort at different locations
-  
+# freq of reporting per each location not possible because not many lists per location.
+# bias caused by differences in sampling effort at each location has been minimised
+# by selecting most birded locations as well as the same number of lists from each 
+# location for comparison.
+
+temp1 <- SAdata2a %>% group_by(YEAR) %>% 
+  summarise(NO.LISTS = min(NO.LISTS))
+
+set.seed(22)
+temp2 <- SAdata0 %>% 
+  mutate(LOCALITY = case_when(grepl("Kidangu", LOCALITY) ~ "Kidangu Road",
+                              TRUE ~ LOCALITY)) %>% 
+  filter(LOCALITY %in% SAdata2a$LOCALITY,
+         YEAR == 2020) %>% 
+  group_by(YEAR, LOCALITY) %>% 
+  distinct(SAMPLING.EVENT.IDENTIFIER) %>% 
+  slice_sample(n = temp1$NO.LISTS[1])
+set.seed(22)
+temp3 <- SAdata0 %>% 
+  mutate(LOCALITY = case_when(grepl("Kidangu", LOCALITY) ~ "Kidangu Road",
+                              TRUE ~ LOCALITY)) %>% 
+  filter(LOCALITY %in% SAdata2a$LOCALITY,
+         YEAR == 2021) %>% 
+  group_by(YEAR, LOCALITY) %>% 
+  distinct(SAMPLING.EVENT.IDENTIFIER) %>% 
+  slice_sample(n = temp1$NO.LISTS[2])
 
 SAdata4 <- SAdata0 %>% 
+  mutate(LOCALITY = case_when(grepl("Kidangu", LOCALITY) ~ "Kidangu Road",
+                              TRUE ~ LOCALITY)) %>% 
+  filter(SAMPLING.EVENT.IDENTIFIER %in% rbind(temp2, temp3)$SAMPLING.EVENT.IDENTIFIER) %>% 
+  ungroup() %>% 
   group_by(YEAR) %>% 
   mutate(TOT.LISTS = n_distinct(SAMPLING.EVENT.IDENTIFIER)) %>% 
   ungroup() %>% 
@@ -148,36 +175,89 @@ SAdata4 <- SAdata0 %>%
 SAdata4a <- SAdata4 %>% filter(YEAR == 2020)
 SAdata4b <- SAdata4 %>% filter(YEAR == 2021)
 
+rm(temp1, temp2, temp3)
+
 
 set.seed(31)
 SAfig4 <- (ggplot(rbind(SAdata4a[1:5,], 
                         filter(SAdata4a, 
-                               COMMON.NAME %in% sample((SAdata4a %>% filter(R.FREQ < 0.05))$COMMON.NAME, 5))),
+                               COMMON.NAME %in% sample((SAdata4a %>% filter(R.FREQ < 0.25))$COMMON.NAME, 5))),
                   aes(reorder(COMMON.NAME, -R.FREQ), R.FREQ*100)) +
              geom_col(fill = c(rep(RColorBrewer::brewer.pal(4, "Paired")[2], 5), 
                                rep(RColorBrewer::brewer.pal(4, "Paired")[1], 5))) + 
              geom_vline(xintercept = 5.5) +
              scale_y_continuous(breaks = seq(0,100,5), 
-                                limits = c(0, 60)) +
-             scale_x_discrete(labels = c("BrKi","HoCr","IPHe","LiCo","BlDr",
-                                         "Shik","YBBa","AsWo","BBFl","RWLa")) +
+                                limits = c(0, 75)) +
+             scale_x_discrete(labels = c("BrKi","AsKo","GrCo","PRSu","BHIb",
+                                         "PBFl","RWBu","RoPi","SBKi","LWDu")) +
              labs(x = "Species", y = "Frequency of reporting (%)", title = "2020")) /
   (ggplot(rbind(SAdata4b[1:5,], 
                 filter(SAdata4b, 
-                       COMMON.NAME %in% sample((SAdata4b %>% filter(R.FREQ < 0.05))$COMMON.NAME, 5))),
+                       COMMON.NAME %in% sample((SAdata4b %>% filter(R.FREQ < 0.25))$COMMON.NAME, 5))),
           aes(reorder(COMMON.NAME, -R.FREQ), R.FREQ*100)) +
      geom_col(fill = c(rep(RColorBrewer::brewer.pal(4, "Paired")[4], 5), 
                        rep(RColorBrewer::brewer.pal(4, "Paired")[3], 5))) + 
      geom_vline(xintercept = 5.5) +
      scale_y_continuous(breaks = seq(0,100,5), 
-                        limits = c(0, 80)) +
-     scale_x_discrete(labels = c("HoCr","RoPi","BrKi","IPHe","BlDr",
-                                 "APSw","GHSw","JuOw","WRMu","YeBi")) +
+                        limits = c(0, 75)) +
+     scale_x_discrete(labels = c("GrCo","HoCr","AsKo","IPHe","OMRo",
+                                 "AsPr","RWLa","WTKi","CoTa","WCBa")) +
      labs(x = "Species", y = "Frequency of reporting (%)", title = "2021")) &
   plot_annotation(title = "Reporting frequency of birds in Salim Ali Bird Count",
                   subtitle = "Showing five most common and random five uncommon species",
-                  caption = expression(italic("BrKi: Brahminy Kite; HoCr: House Crow; IPHe: Indian Pond-Heron; LiCo: Little Cormorant; BlDr: Black Drongo; Shik: Shikra; YBBa: Yellow-billed Babbler; AsWo: Ashy Woodswallow; BBFl: Brown-breasted Flycatcher; \nRWLa: Red-wattled Lapwing; RoPi: Rock Pigeon (Feral Pigeon); APSw: Asian Palm-Swift; GHSw: Grey-headed Swamphen; JuOw: Jungle Owlet; WRMu: White-rumped Munia; YeBi: Yellow Bittern"))) &
+                  caption = expression(italic("BrKi: Brahminy Kite; AsKo: Asian Koel; GrCo: Greater Coucal; PRSu: Purple-rumped Sunbird; BHIb: Black-headed Ibis; PBFl: Pale-billed Flowerpecker; RWBu: Red-whiskered Bulbul; RoPi: Rock Pigeon (Feral Pigeon); \nSBKi: Stork-billed Kingfisher; LWDu: Lesser Whistling-Duck; HoCr: House Crow; IPHe: Indian Pond-Heron; OMRo: Oriental Magpie-Robin; AsPr: Ashy Prinia; RWLa: Red-wattled Lapwing; WTKi: White-throated \nKingfisher; CoTa: Common Tailorbird; WCBa: White-cheeked Barbet"))) &
   theme(plot.caption = element_text(size = 6.5, hjust = 0, margin = margin(t = 20)))
+
+
+# comparing birding effort across the two years
+SAdata5a <- SAdata0 %>% 
+  mutate(LOCALITY = case_when(grepl("Kidangu", LOCALITY) ~ "Kidangu Road",
+                              TRUE ~ LOCALITY)) %>% 
+  group_by(LOCALITY) %>% 
+  filter(!any(n_distinct(YEAR) < 2)) %>% ungroup() %>% 
+  group_by(YEAR) %>% 
+  summarise(NO.LISTS = n_distinct(SAMPLING.EVENT.IDENTIFIER)) %>% 
+  ungroup() %>% 
+  arrange(YEAR, desc(NO.LISTS)) %>% 
+  mutate(YEAR = as.factor(YEAR))
+
+SAdata5b <- SAdata0 %>% 
+  mutate(LOCALITY = case_when(grepl("Kidangu", LOCALITY) ~ "Kidangu Road",
+                              TRUE ~ LOCALITY)) %>% 
+  group_by(LOCALITY) %>% 
+  filter(!any(n_distinct(YEAR) < 2)) %>% ungroup() %>% 
+  group_by(YEAR, LOCALITY) %>% 
+  summarise(NO.LISTS = n_distinct(SAMPLING.EVENT.IDENTIFIER)) %>% 
+  ungroup() %>% 
+  group_by(LOCALITY) %>% 
+  filter(!any(NO.LISTS < 2)) %>% 
+  arrange(YEAR, desc(NO.LISTS)) %>% 
+  mutate(YEAR = as.factor(YEAR),
+         L.CODE = case_when(LOCALITY == "Kalamassery--HMT Estate Area" ~ "HMT",
+                            LOCALITY == "Kidangu Road" ~ "KID",
+                            LOCALITY == "Mangalavanam Bird Sanctuary" ~ "MBS"))
+
+SAfig5 <- ((ggplot(SAdata5a) +
+             geom_col(aes(reorder(YEAR, -NO.LISTS), NO.LISTS, fill = YEAR), position = "dodge") +
+             scale_fill_manual(values = c(RColorBrewer::brewer.pal(4, "Paired")[2],
+                                          RColorBrewer::brewer.pal(4, "Paired")[4]),
+                               name = "Year") +
+             scale_y_continuous(breaks = seq(0, 100, 4),
+                                limits = c(0, 25)) +
+             labs(x = "Year", y = "Number of lists", title = "Overall")) +
+  (ggplot(SAdata5b) +
+     geom_col(aes(reorder(L.CODE, -NO.LISTS), NO.LISTS, fill = YEAR), position = "dodge") +
+     scale_fill_manual(values = c(RColorBrewer::brewer.pal(4, "Paired")[2],
+                                  RColorBrewer::brewer.pal(4, "Paired")[4]),
+                       name = "Year") +
+     scale_y_continuous(breaks = seq(0, 100, 2),
+                        limits = c(0, 10)) +
+     labs(x = "Locations", y = "Number of lists", title = "Location-wise"))) +
+  plot_layout(ncol = 2, widths = c(1, 2), guides = "collect") &
+  plot_annotation(title = "Salim Ali Bird Counts",
+                  subtitle = "Showing change in birding effort overall and in three locations",
+                  caption = expression(italic("HMT: 'Kalamassery--HMT Estate Area'; KID: 'Kidangu Road'; MBS: 'Mangalavanam Bird Sanctuary'"))) &
+  theme(plot.caption = element_text(size = 7, hjust = 0, margin = margin(t = 20)))
 
 
 
@@ -189,6 +269,9 @@ write_csv(SAdata3, "Vishnupriyan/kochi-surveys-2021_SAdata3.csv")
 
 ggsave("Vishnupriyan/kochi-surveys-2021_SAfig4.png", SAfig4, 
        width = 9, height = 12, units = "in", dpi = 500)
+
+ggsave("Vishnupriyan/kochi-surveys-2021_SAfig5.png", SAfig5, 
+       width = 7, height = 5, units = "in", dpi = 500)
 
 
 
