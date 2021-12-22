@@ -324,13 +324,13 @@ THfig4 <- ggplot(rbind(THdata4[1:5,],
   geom_vline(xintercept = 5.5) +
   scale_y_continuous(breaks = seq(0,50,5), 
                      limits = c(0, 40)) +
-  scale_x_discrete(labels = c("GRRD","SHMy","MaPa","YBBu","MGHo",
+  scale_x_discrete(labels = c("GRTD","SHMy","MaPa","YBBu","MGHo",
                               "CHEa","ISBa","MaWo","InEg","LBCr")) +
   labs(x = "Species",
        y = "Frequency of reporting (%)",
        title = "Reporting frequency of birds in Thattekkad Bird Count 2021",
        subtitle = "Showing five most common and random five uncommon species",
-       caption = expression(italic("GRRD: Greater Racket-tailed Drongo; SHMy: Southern Hill Myna; MaPa: Malabar Parakeet; YBBu: Yellow-browed Bulbul; MGHo: Malabar Grey Hornbill; CHEa: Changeable Hawk-Eagle; \nISBa: Indian Scimitar-Babbler; MaWo: Malabar Woodshrike; InEg: Intermediate Egret; LBCr: Large-billed Crow"))) +
+       caption = expression(italic("GRTD: Greater Racket-tailed Drongo; SHMy: Southern Hill Myna; MaPa: Malabar Parakeet; YBBu: Yellow-browed Bulbul; MGHo: Malabar Grey Hornbill; CHEa: Changeable Hawk-Eagle; \nISBa: Indian Scimitar-Babbler; MaWo: Malabar Woodshrike; InEg: Intermediate Egret; LBCr: Large-billed Crow"))) +
   theme(plot.caption = element_text(size = 7, hjust = 0, margin = margin(t = 20)))
   
 
