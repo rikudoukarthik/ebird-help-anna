@@ -203,7 +203,7 @@ SAfig4 <- (ggplot(rbind(SAdata4a[1:5,],
      scale_x_discrete(labels = c("GrCo","HoCr","AsKo","IPHe","OMRo",
                                  "AsPr","RWLa","WTKi","CoTa","WCBa")) +
      labs(x = "Species", y = "Frequency of reporting (%)", title = "2021")) &
-  plot_annotation(title = "Reporting frequency of birds in Salim Ali Bird Count",
+  plot_annotation(title = "Reporting frequency of birds in Salim Ali Bird Counts",
                   subtitle = "Showing five most common and random five uncommon species",
                   caption = expression(italic("BrKi: Brahminy Kite; AsKo: Asian Koel; GrCo: Greater Coucal; PRSu: Purple-rumped Sunbird; BHIb: Black-headed Ibis; PBFl: Pale-billed Flowerpecker; RWBu: Red-whiskered Bulbul; RoPi: Rock Pigeon (Feral Pigeon); \nSBKi: Stork-billed Kingfisher; LWDu: Lesser Whistling-Duck; HoCr: House Crow; IPHe: Indian Pond-Heron; OMRo: Oriental Magpie-Robin; AsPr: Ashy Prinia; RWLa: Red-wattled Lapwing; WTKi: White-throated \nKingfisher; CoTa: Common Tailorbird; WCBa: White-cheeked Barbet"))) &
   theme(plot.caption = element_text(size = 6.5, hjust = 0, margin = margin(t = 20)))
